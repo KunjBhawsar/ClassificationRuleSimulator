@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Classification Rule Simulator</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<aside>
+  <div class="brand"><div><h2>Classification Rule Simulator</h2><small>Classification Rule Mining</small></div></div>
+  <nav>
+    <button data-p="overview">Overview</button>
+    <button data-p="dataset">Dataset & Preprocessing</button>
+    <button data-p="train">Model Training</button>
+    <button data-p="rules">Classification Rules</button>
+    <button data-p="evaluation">Evaluation</button>
+    <button data-p="visualization">Visualization</button>
+    <button data-p="prediction">Prediction</button>
+  </nav>
+  
+</aside>
+<main>
+<header>
+  <div><h1 id="title">Overview</h1><p id="sub">Classification rule mining dashboard</p></div>
+  <span id="status">No dataset</span>
+</header>
+
+<section id="overview" class="page active">
+  <div class="hero"><div><span class="eyebrow">CLASSIFICATION WORKBENCH</span><h2>Turn labelled data into understandable rules.</h2><p>Upload CSV → preprocess → build an adaptive Decision Tree → generate IF–THEN rules → evaluate → explore dataset-driven visualizations → predict new records.</p></div><button onclick="show('dataset')">Start →</button></div>
+  <div class="cards">
+    <div><small>ROWS</small><b id="rows">—</b></div><div><small>FEATURES</small><b id="features">—</b></div><div><small>CLASSES</small><b id="classes">—</b></div><div><small>ACCURACY</small><b id="acc">—</b></div>
+  </div>
+  <div class="panel"><h3>What this app does</h3><div class="steps"><div><b>01</b><span>Upload and clean</span><small>Inspect missing values, duplicates, types and ID columns.</small></div><div><b>02</b><span>Train</span><small>Train an adaptive Decision Tree tuned to dataset size.</small></div><div><b>03</b><span>Explain</span><small>See rules, confidence, support and feature importance.</small></div><div><b>04</b><span>Explore</span><small>View histograms, categorical bars and class distribution.</small></div></div></div>
+</section>
+
+<section id="dataset" class="page">
+  <div class="panel"><div class="section-title"><div><h2>Dataset & Preprocessing</h2><p class="muted">Upload a CSV and inspect every preprocessing step before training.</p></div><button id="removeFile" class="danger" onclick="removeDataset()" disabled>Remove uploaded CSV</button></div><input id="file" type="file" accept=".csv"><div id="info"></div><div class="prep-grid" id="prepSummary"></div></div>
+  <div class="prep-grid detailed-prep">
+    <div class="panel prep-card"><h3>Missing values</h3><div id="missingPrep">Upload a dataset.</div></div>
+    <div class="panel prep-card"><h3>Duplicates</h3><div id="duplicatePrep">Upload a dataset.</div></div>
+    <div class="panel prep-card"><h3>Categorical encoding</h3><div id="encodingPrep">Upload a dataset.</div></div>
+    <div class="panel prep-card"><h3>Identifier removal</h3><div id="idPrep">Upload a dataset.</div></div>
+    <div class="panel prep-card"><h3>Outlier handling</h3><div id="outlierPrep">Upload a dataset.</div></div>
+    <div class="panel prep-card"><h3>Feature selection</h3><div id="selectionPrep">Upload a dataset.</div></div>
+    <div class="panel prep-card"><h3>Class distribution</h3><div id="classPrep">Upload a dataset.</div></div>
+  </div>
+  <div class="panel"><h3>Dataset preview</h3><div class="tablewrap"><table id="preview"></table></div></div>
+</section>
+
+<section id="train" class="page">
+  <div class="panel"><h2>Model Training</h2>
+    <div class="grid">
+      <label>Target / Class<select id="target"></select></label>
+            <label>Test size<select id="test"><option value=".2">20%</option><option value=".1">10%</option><option value=".25">25%</option><option value=".3">30%</option><option value=".4">40%</option></select></label>
+      <label>Criterion<select id="criterion"><option value="gini">Gini</option><option value="entropy">Entropy</option><option value="log_loss">Log Loss</option></select></label>
+      <label>Max depth<input id="depth" type="number" min="1" placeholder="Unlimited"></label>
+      <label>Min samples split<input id="mins" type="number" min="2" value="2"></label>
+    </div>
+    <button onclick="train()">Train Decision Tree</button><p id="trainmsg"></p>
+  </div>
+  <div class="cards"><div><small>ACCURACY</small><b id="ma">—</b></div><div><small>MACRO PRECISION</small><b id="mp">—</b></div><div><small>MACRO RECALL</small><b id="mr">—</b></div><div><small>MACRO F1</small><b id="mf">—</b></div></div>
+  <div class="panel"><h3>Feature importance</h3><div id="importance"></div></div>
+</section>
+
+<section id="rules" class="page">
+  <div class="panel"><h2>Classification Rules</h2><p class="muted" id="ruleSource"></p><div class="rule-head"><span>Rule</span><span>Prediction</span><span>Confidence</span><span>Support</span></div><div id="rulesList"></div></div>
+</section>
+
+<section id="evaluation" class="page">
+  <div class="panel"><h2>Evaluation</h2><p class="muted">Headline precision, recall and F1 use macro averaging, so they are not simply the same as accuracy.</p><div id="eval" class="metric-grid"></div><div class="matrix-wrap"><h3>Confusion Matrix</h3><div id="matrix"></div></div></div>
+</section>
+
+<section id="visualization" class="page">
+  <div class="page-head"><div><span class="eyebrow">VISUALIZATION</span><h2>Dataset-driven visual analysis</h2><p>Visuals adapt to the uploaded dataset and scale to large row counts.</p></div><div class="viz-actions"><button onclick="runVisualization()">Run Visualization</button><span id="vizStatus" class="muted"></span></div></div>
+  <div class="panel"><h3>Numeric feature histograms</h3><div id="histogramCharts" class="hist-grid"></div></div>
+  <div class="panel"><h3>Categorical feature bar graphs</h3><div id="categoryCharts" class="category-grid"></div></div>
+  <div class="panel"><h3>Criterion comparison</h3><div id="criterionChart"></div></div>
+  <div class="panel"><h3>Test-size comparison</h3><div id="testChart"></div></div>
+  <div class="panel"><h3>Max-depth comparison</h3><div id="depthChart"></div></div>
+  <div class="panel"><h3>Class distribution</h3><div id="classChart"></div></div>
+</section>
+
+<section id="prediction" class="page">
+  <div class="panel"><h2>Prediction Accuracy</h2><p class="muted">Overall accuracy measured on the held-out test set. A single new record does not have a true label yet, so this is the best available prediction-accuracy measure.</p><div id="predictionAccuracyChart"></div></div>
+  <div class="panel"><h2>Predict a new record</h2><p class="muted">Enter values for the model features. Identifier columns are excluded automatically.</p><div id="form" class="grid"></div><button onclick="predict()">Predict class</button><div id="result"></div></div>
+</section>
+</main>
+<script src="/app.js"></script>
+</body></html>
